@@ -4439,7 +4439,7 @@ var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $author$project$Main$O = {$: 'O'};
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $author$project$Main$initModel = {field: $elm$core$Dict$empty, gameOverCheck: $elm$core$Maybe$Nothing, queue: _List_Nil, turn: $author$project$Main$O};
+var $author$project$Main$initModel = {field: $elm$core$Dict$empty, queue: _List_Nil, turn: $author$project$Main$O, winner: $elm$core$Maybe$Nothing};
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -5169,194 +5169,6 @@ var $elm$browser$Browser$sandbox = function (impl) {
 			view: impl.view
 		});
 };
-var $author$project$Main$fieldSize = 3;
-var $elm$core$Basics$compare = _Utils_compare;
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
-var $author$project$Main$gameCheck = function (field) {
-	var checkRow = function (n) {
-		return A3(
-			$elm$core$List$foldl,
-			F2(
-				function (c, bool) {
-					var _v5 = _Utils_Tuple2(
-						A2($elm$core$Dict$get, c, field),
-						A2(
-							$elm$core$Dict$get,
-							_Utils_Tuple2(0, n),
-							field));
-					if ((_v5.a.$ === 'Just') && (_v5.b.$ === 'Just')) {
-						var state = _v5.a.a;
-						var hstate = _v5.b.a;
-						return _Utils_eq(state, hstate) && bool;
-					} else {
-						return false;
-					}
-				}),
-			true,
-			A2(
-				$elm$core$List$map,
-				function (i) {
-					return _Utils_Tuple2(i, n);
-				},
-				A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1)));
-	};
-	var checkLoop = F2(
-		function (checkFunc, toCord) {
-			return A3(
-				$elm$core$List$foldl,
-				F2(
-					function (i, state) {
-						if (state.$ === 'Nothing') {
-							return checkFunc(i) ? A2(
-								$elm$core$Dict$get,
-								toCord(i),
-								field) : $elm$core$Maybe$Nothing;
-						} else {
-							return state;
-						}
-					}),
-				$elm$core$Maybe$Nothing,
-				A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1));
-		});
-	var checkDiag2 = A3(
-		$elm$core$List$foldl,
-		F2(
-			function (c, bool) {
-				var _v3 = _Utils_Tuple2(
-					A2($elm$core$Dict$get, c, field),
-					A2(
-						$elm$core$Dict$get,
-						_Utils_Tuple2($author$project$Main$fieldSize - 1, 0),
-						field));
-				if ((_v3.a.$ === 'Just') && (_v3.b.$ === 'Just')) {
-					var state = _v3.a.a;
-					var hstate = _v3.b.a;
-					return _Utils_eq(state, hstate) && bool;
-				} else {
-					return false;
-				}
-			}),
-		true,
-		A2(
-			$elm$core$List$map,
-			function (i) {
-				return _Utils_Tuple2(($author$project$Main$fieldSize - i) - 1, i);
-			},
-			A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1)));
-	var checkDiag1 = A3(
-		$elm$core$List$foldl,
-		F2(
-			function (c, bool) {
-				var _v2 = _Utils_Tuple2(
-					A2($elm$core$Dict$get, c, field),
-					A2(
-						$elm$core$Dict$get,
-						_Utils_Tuple2(0, $author$project$Main$fieldSize - 1),
-						field));
-				if ((_v2.a.$ === 'Just') && (_v2.b.$ === 'Just')) {
-					var state = _v2.a.a;
-					var hstate = _v2.b.a;
-					return _Utils_eq(state, hstate) && bool;
-				} else {
-					return false;
-				}
-			}),
-		true,
-		A2(
-			$elm$core$List$map,
-			function (i) {
-				return _Utils_Tuple2(i, ($author$project$Main$fieldSize - i) - 1);
-			},
-			A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1)));
-	var checkCol = function (n) {
-		return A3(
-			$elm$core$List$foldl,
-			F2(
-				function (c, bool) {
-					var _v1 = _Utils_Tuple2(
-						A2($elm$core$Dict$get, c, field),
-						A2(
-							$elm$core$Dict$get,
-							_Utils_Tuple2(n, 0),
-							field));
-					if ((_v1.a.$ === 'Just') && (_v1.b.$ === 'Just')) {
-						var state = _v1.a.a;
-						var hstate = _v1.b.a;
-						return _Utils_eq(state, hstate) && bool;
-					} else {
-						return false;
-					}
-				}),
-			true,
-			A2(
-				$elm$core$List$map,
-				function (i) {
-					return _Utils_Tuple2(n, i);
-				},
-				A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1)));
-	};
-	if (checkDiag1) {
-		return A2(
-			$elm$core$Dict$get,
-			_Utils_Tuple2(0, $author$project$Main$fieldSize - 1),
-			field);
-	} else {
-		if (checkDiag2) {
-			return A2(
-				$elm$core$Dict$get,
-				_Utils_Tuple2($author$project$Main$fieldSize - 1, 0),
-				field);
-		} else {
-			var _v0 = A2(
-				checkLoop,
-				checkRow,
-				function (i) {
-					return _Utils_Tuple2(0, i);
-				});
-			if (_v0.$ === 'Nothing') {
-				return A2(
-					checkLoop,
-					checkCol,
-					function (i) {
-						return _Utils_Tuple2(i, 0);
-					});
-			} else {
-				var state = _v0;
-				return state;
-			}
-		}
-	}
-};
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5417,6 +5229,7 @@ var $elm$core$Dict$balance = F5(
 			}
 		}
 	});
+var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
 		if (dict.$ === 'RBEmpty_elm_builtin') {
@@ -5464,6 +5277,140 @@ var $elm$core$Dict$insert = F3(
 			var x = _v0;
 			return x;
 		}
+	});
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$core$Basics$not = _Basics_not;
+var $elm$core$List$all = F2(
+	function (isOkay, list) {
+		return !A2(
+			$elm$core$List$any,
+			A2($elm$core$Basics$composeL, $elm$core$Basics$not, isOkay),
+			list);
+	});
+var $author$project$Main$fieldSize = 3;
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
+		}
+	});
+var $author$project$Main$isOver = F2(
+	function (field, turn) {
+		var checkRow = function (n) {
+			return A2(
+				$elm$core$List$all,
+				function (c) {
+					return _Utils_eq(
+						A2($elm$core$Dict$get, c, field),
+						$elm$core$Maybe$Just(turn));
+				},
+				A2(
+					$elm$core$List$map,
+					function (i) {
+						return _Utils_Tuple2(i, n);
+					},
+					A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1)));
+		};
+		var checkLoop = function (checkFunc) {
+			return A2(
+				$elm$core$List$any,
+				function (i) {
+					return checkFunc(i);
+				},
+				A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1));
+		};
+		var checkDiag2 = A2(
+			$elm$core$List$all,
+			function (c) {
+				return _Utils_eq(
+					A2($elm$core$Dict$get, c, field),
+					$elm$core$Maybe$Just(turn));
+			},
+			A2(
+				$elm$core$List$map,
+				function (i) {
+					return _Utils_Tuple2(i, i);
+				},
+				A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1)));
+		var checkDiag1 = A2(
+			$elm$core$List$all,
+			function (c) {
+				return _Utils_eq(
+					A2($elm$core$Dict$get, c, field),
+					$elm$core$Maybe$Just(turn));
+			},
+			A2(
+				$elm$core$List$map,
+				function (i) {
+					return _Utils_Tuple2(i, ($author$project$Main$fieldSize - i) - 1);
+				},
+				A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1)));
+		var checkCol = function (n) {
+			return A2(
+				$elm$core$List$all,
+				function (c) {
+					return _Utils_eq(
+						A2($elm$core$Dict$get, c, field),
+						$elm$core$Maybe$Just(turn));
+				},
+				A2(
+					$elm$core$List$map,
+					function (i) {
+						return _Utils_Tuple2(n, i);
+					},
+					A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1)));
+		};
+		return checkDiag1 || (checkDiag2 || (checkLoop(checkRow) || checkLoop(checkCol)));
 	});
 var $author$project$Main$X = {$: 'X'};
 var $author$project$Main$next = function (state) {
@@ -5835,6 +5782,10 @@ var $elm$core$Dict$remove = F2(
 			return x;
 		}
 	});
+var $author$project$Main$toMaybe = F2(
+	function (bool, a) {
+		return bool ? $elm$core$Maybe$Just(a) : $elm$core$Maybe$Nothing;
+	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		if (msg.$ === 'Pressed') {
@@ -5858,14 +5809,17 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							field: newField,
-							gameOverCheck: $author$project$Main$gameCheck(newField),
 							queue: _Utils_ap(
 								tl,
 								_List_fromArray(
 									[
 										_Utils_Tuple2(i, j)
 									])),
-							turn: $author$project$Main$next(model.turn)
+							turn: $author$project$Main$next(model.turn),
+							winner: A2(
+								$author$project$Main$toMaybe,
+								A2($author$project$Main$isOver, newField, model.turn),
+								model.turn)
 						});
 				} else {
 					return model;
@@ -5880,14 +5834,17 @@ var $author$project$Main$update = F2(
 					model,
 					{
 						field: newField,
-						gameOverCheck: $author$project$Main$gameCheck(newField),
 						queue: _Utils_ap(
 							model.queue,
 							_List_fromArray(
 								[
 									_Utils_Tuple2(i, j)
 								])),
-						turn: $author$project$Main$next(model.turn)
+						turn: $author$project$Main$next(model.turn),
+						winner: A2(
+							$author$project$Main$toMaybe,
+							A2($author$project$Main$isOver, newField, model.turn),
+							model.turn)
 					});
 			}
 		} else {
@@ -5980,7 +5937,7 @@ var $author$project$Main$view = function (model) {
 				$elm$core$Dict$get,
 				_Utils_Tuple2(i, j),
 				model.field),
-			$elm$core$Maybe$Nothing) && _Utils_eq(model.gameOverCheck, $elm$core$Maybe$Nothing)) ? A2(
+			$elm$core$Maybe$Nothing) && _Utils_eq(model.winner, $elm$core$Maybe$Nothing)) ? A2(
 			$elm$svg$Svg$rect,
 			A2(
 				$elm$core$List$cons,
@@ -6094,7 +6051,7 @@ var $author$project$Main$view = function (model) {
 					},
 					A2($elm$core$List$range, 0, $author$project$Main$fieldSize - 1)))));
 	var gameOverString = function () {
-		var _v1 = model.gameOverCheck;
+		var _v1 = model.winner;
 		if (_v1.$ === 'Just') {
 			if (_v1.a.$ === 'O') {
 				var _v2 = _v1.a;
@@ -6108,7 +6065,7 @@ var $author$project$Main$view = function (model) {
 		}
 	}();
 	var continueButton = function () {
-		var _v0 = model.gameOverCheck;
+		var _v0 = model.winner;
 		if (_v0.$ === 'Just') {
 			return A2(
 				$elm$html$Html$div,

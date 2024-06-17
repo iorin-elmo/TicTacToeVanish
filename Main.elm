@@ -27,7 +27,7 @@ type alias Model =
   { field : Dict (Int, Int) State
   , queue : List (Int, Int)
   , turn : State
-  , gameOverCheck : Maybe State
+  , winner : Maybe State
   }
 
 type Msg
@@ -39,7 +39,7 @@ initModel =
   { field = Dict.empty
   , queue = []
   , turn = O
-  , gameOverCheck = Nothing
+  , winner = Nothing
   }
 
 update : Msg -> Model -> Model
@@ -57,7 +57,7 @@ update msg model =
               | field = newField
               , queue = tl ++ [(i,j)]
               , turn = next model.turn
-              , gameOverCheck = gameCheck newField
+              , winner = toMaybe (isOver newField model.turn) model.turn
               }
 
           [] -> model
@@ -70,83 +70,42 @@ update msg model =
           | field = newField
           , queue = model.queue ++ [(i,j)]
           , turn = next model.turn
-          , gameOverCheck = gameCheck newField
+          , winner = toMaybe (isOver newField model.turn) model.turn
           }
 
     Continue -> initModel
 
 
-gameCheck : Dict (Int,Int) State -> Maybe State
-gameCheck field =
+isOver : Dict (Int,Int) State -> State -> Bool
+isOver field turn =
   let
     checkDiag1 =
       List.range 0 (fieldSize-1)
         |> List.map (\i -> (i, fieldSize-i-1))
-        |> List.foldl
-            (\c bool ->
-              case (Dict.get c field, Dict.get (0,fieldSize-1) field) of
-                (Just state, Just hstate) ->
-                  (state == hstate) && bool
-                _ -> False
-            ) True
+        |> List.all (\c -> Dict.get c field == Just turn)
 
     checkDiag2 =
       List.range 0 (fieldSize-1)
-        |> List.map (\i -> (fieldSize-i-1, i))
-        |> List.foldl
-            (\c bool ->
-              case (Dict.get c field, Dict.get (fieldSize-1,0) field) of
-                (Just state, Just hstate) ->
-                  (state == hstate) && bool
-                _ -> False
-            ) True
+        |> List.map (\i -> (i, i))
+        |> List.all (\c -> Dict.get c field == Just turn)
 
     checkRow n =
       List.range 0 (fieldSize-1)
         |> List.map (\i -> (i,n))
-        |> List.foldl
-            (\c bool ->
-              case (Dict.get c field, Dict.get (0,n) field) of
-                (Just state, Just hstate) ->
-                  (state == hstate) && bool
-                _ -> False
-            ) True
+        |> List.all (\c -> Dict.get c field == Just turn)
 
     checkCol n =
       List.range 0 (fieldSize-1)
         |> List.map (\i -> (n,i))
-        |> List.foldl
-            (\c bool ->
-              case (Dict.get c field, Dict.get (n,0) field) of
-                (Just state, Just hstate) ->
-                  (state == hstate) && bool
-                _ -> False
-            ) True
+        |> List.all (\c -> Dict.get c field == Just turn)
 
-    checkLoop : (Int -> Bool) -> (Int -> (Int, Int)) -> Maybe State
-    checkLoop checkFunc toCord =
+    checkLoop : (Int -> Bool) -> Bool
+    checkLoop checkFunc =
       List.range 0 (fieldSize-1)
-        |> List.foldl
-            (\i state ->
-              case state of
-                Nothing ->
-                  if checkFunc i
-                  then Dict.get (toCord i) field
-                  else Nothing
-                _ -> state
-            ) Nothing
+        |> List.any (\i -> checkFunc i)
 
   in
-    if checkDiag1
-    then Dict.get (0,fieldSize-1) field
-    else
-      if checkDiag2
-      then Dict.get (fieldSize-1,0) field
-      else
-        case checkLoop checkRow (\i -> (0,i)) of
-          Nothing ->
-            checkLoop checkCol (\i -> (i,0))
-          state -> state
+    checkDiag1 || checkDiag2 || checkLoop checkRow || checkLoop checkCol
 
 
 view : Model -> Html Msg
@@ -170,7 +129,7 @@ view model =
           ]
 
       in
-        if Dict.get (i,j) model.field == Nothing && model.gameOverCheck == Nothing
+        if Dict.get (i,j) model.field == Nothing && model.winner == Nothing
         then
           Svg.rect ((onClick <| Pressed (i,j)) :: panelAttributes) []
         else
@@ -223,13 +182,13 @@ view model =
         |> List.concat
 
     gameOverString =
-      case model.gameOverCheck of
+      case model.winner of
         Just O -> "O won !!"
         Just X -> "X won !!"
         _ -> ""
 
     continueButton =
-      case model.gameOverCheck of
+      case model.winner of
         Just _ -> div [][Html.button [Ev.onClick Continue][text "Continue"]]
         _ -> div [][]
 
@@ -263,3 +222,9 @@ list2pointStr list =
     (x,y) :: tl ->
       String.fromInt x ++ "," ++ String.fromInt y ++ " " ++ list2pointStr tl
     _ -> ""
+
+toMaybe : Bool -> a -> Maybe a
+toMaybe bool a =
+  if bool
+  then Just a
+  else Nothing
